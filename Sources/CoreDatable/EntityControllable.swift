@@ -6,9 +6,32 @@ public protocol EntityControllable {
     var coreDataController: CoreDataController { get }
 }
 
+// MARK: - CoreDataController Wrappers
 public extension EntityControllable {
     
+    func fetchObject(
+        with fetchRequest: NSFetchRequest<Entity.ManagedObject>
+    ) async throws -> Entity? {
+        try await fetchObjects(with: fetchRequest).first
+    }
     
+    func fetchObjects(
+        with fetchRequest: NSFetchRequest<Entity.ManagedObject>
+    ) async throws -> [Entity] {
+        try await coreDataController.fetchObjects(with: fetchRequest)
+    }
+    
+    func save(_ object: Entity) async throws {
+        try await save([object])
+    }
+    
+    func save(_ objects: [Entity]) async throws {
+        try await coreDataController.save(objects)
+    }
+    
+    func delete(_ object: Entity) async throws {
+        try await coreDataController.delete(object)
+    }
     
     func deleteAll() async throws {
         try await coreDataController.batchDelete(with: nil, entityName: Entity.entityName)
