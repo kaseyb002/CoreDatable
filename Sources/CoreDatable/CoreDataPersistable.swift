@@ -5,7 +5,7 @@ public protocol CoreDataPersistable {
     
     init?(managedObject: ManagedObject)
     
-    func makeManagedObject() -> ManagedObject
+    func makeManagedObject(controller: CoreDataController) -> ManagedObject
     func makeGetObjectPredicate() -> NSPredicate
     
     static var returnObjectsAsFaultsOnFetch: Bool { get }

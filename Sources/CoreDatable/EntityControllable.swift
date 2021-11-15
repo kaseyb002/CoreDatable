@@ -8,25 +8,7 @@ public protocol EntityControllable {
 
 public extension EntityControllable {
     
-    func fetchManagedObject(
-        with obj: Entity,
-        context: NSManagedObjectContext
-    ) async throws -> Entity.ManagedObject? {
-        let fetchRequest = obj.makeGetObjectFetchRequest()
-        fetchRequest.returnsObjectsAsFaults = Entity.returnObjectsAsFaultsOnFetch
-        return try await coreDataController.fetchManagedObject(with: fetchRequest, in: context)
-    }
     
-    func findOrCreateManagedObject(
-        with obj: Entity,
-        context: NSManagedObjectContext
-    ) async throws -> Entity.ManagedObject {
-        if let existing = try? await fetchManagedObject(with: obj, context: context) {
-            return existing
-        }
-        
-        return Entity.ManagedObject(context: context)
-    }
     
     func deleteAll() async throws {
         try await coreDataController.batchDelete(with: nil, entityName: Entity.entityName)

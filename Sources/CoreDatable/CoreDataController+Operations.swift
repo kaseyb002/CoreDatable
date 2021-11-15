@@ -33,7 +33,7 @@ public extension CoreDataController {
     
     func save<T: CoreDataPersistable>(_ objects: [T]) async throws {
         try await writeContext.perform {
-            let _ = objects.map { $0.makeManagedObject() }
+            let _ = objects.map { $0.makeManagedObject(controller: self) }
             try self.writeContext.save()
         }
     }
@@ -45,32 +45,12 @@ public extension CoreDataController {
     }
 }
 
-// MARK: - Fetch Managed Objects
-public extension CoreDataController {
-    
-    func fetchManagedObject<T: NSManagedObject>(
-        with fetchRequest: NSFetchRequest<T>,
-        in context: NSManagedObjectContext
-    ) async throws -> T? {
-        try await fetchManagedObjects(with: fetchRequest, in: context).first
-    }
-    
-    func fetchManagedObjects<T: NSManagedObject>(
-        with fetchRequest: NSFetchRequest<T>,
-        in context: NSManagedObjectContext
-    ) async throws -> [T] {
-        try await context.perform {
-            try context.fetch(fetchRequest)
-        }
-    }
-}
-
 // MARK: - Deleting
 public extension CoreDataController {
     
     func delete<T: CoreDataPersistable>(_ object: T) async throws {
         try await writeContext.perform {
-            let managedObject = object.makeManagedObject()
+            let managedObject = object.makeManagedObject(controller: self)
             self.writeContext.delete(managedObject)
             try self.writeContext.save()
         }
@@ -88,5 +68,53 @@ public extension CoreDataController {
         try await writeContext.perform {
             try self.writeContext.executeAndMergeChanges(using: batchDeleteRequest)
         }
+    }
+}
+
+// MARK: - Creating Managed Objects
+public extension CoreDataController {
+    
+    /// Returns entity if it exists (based on `makeGetObjectFetchRequest()`, or creates a new one
+    func findOrCreateManagedObject<T: CoreDataPersistable>(
+        with obj: T,
+        context: NSManagedObjectContext
+    ) -> T.ManagedObject {
+        if let existing = fetchManagedObject(with: obj, context: context) {
+            return existing
+        }
+        
+        return T.ManagedObject(context: context)
+    }
+    
+    private func fetchManagedObject<T: CoreDataPersistable>(
+        with obj: T,
+        context: NSManagedObjectContext
+    ) -> T.ManagedObject? {
+        let fetchRequest = obj.makeGetObjectFetchRequest()
+        fetchRequest.returnsObjectsAsFaults = T.returnObjectsAsFaultsOnFetch
+        return fetchManagedObject(with: fetchRequest, in: context)
+    }
+    
+    private func fetchManagedObject<T: NSManagedObject>(
+        with fetchRequest: NSFetchRequest<T>,
+        in context: NSManagedObjectContext
+    ) -> T? {
+        fetchManagedObjects(with: fetchRequest, in: context).first
+    }
+    
+    private func fetchManagedObjects<T: NSManagedObject>(
+        with fetchRequest: NSFetchRequest<T>,
+        in context: NSManagedObjectContext
+    ) -> [T] {
+        var objs = [T]()
+        context.performAndWait {
+            do {
+                let items = try context.fetch(fetchRequest)
+                objs = items
+            } catch let error as NSError {
+                print("Could not fetch. \(error), \(error.userInfo)")
+            }
+        }
+        return objs
     }
 }
