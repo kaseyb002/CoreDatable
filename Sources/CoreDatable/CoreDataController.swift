@@ -11,7 +11,7 @@ public final class CoreDataController {
         self.writeContext = writeContext
     }
     
-    internal let container: NSPersistentContainer
-    internal let viewContext: NSManagedObjectContext
-    internal let writeContext: NSManagedObjectContext
+    public let container: NSPersistentContainer
+    public let viewContext: NSManagedObjectContext
+    public let writeContext: NSManagedObjectContext
 }
