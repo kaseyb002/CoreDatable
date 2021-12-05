@@ -23,6 +23,12 @@ public extension CoreDataController {
             return items.compactMap { T.init(managedObject: $0) }
         }
     }
+    
+    func fetchCount(
+        with fetchRequest: NSFetchRequest<NSManagedObject>
+    ) async throws -> Int {
+        try viewContext.count(for: fetchRequest)
+    }
 }
 // MARK: - Saving
 public extension CoreDataController {
