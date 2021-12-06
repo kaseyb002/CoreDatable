@@ -25,7 +25,7 @@ public extension CoreDataController {
     }
     
     func fetchCount(
-        with fetchRequest: NSFetchRequest<NSManagedObject>
+        with fetchRequest: NSFetchRequest<NSFetchRequestResult>
     ) async throws -> Int {
         try viewContext.count(for: fetchRequest)
     }
