@@ -16,7 +16,7 @@ public extension CoreDataController {
                 // TODO: give field specific error; throw on the init
                 throw CoreDatableError.failedToInitModel
             }
-            retur item
+            return item
         }
     }
     
