@@ -11,7 +11,7 @@ public extension EntityControllable {
     
     func fetchObject(
         with fetchRequest: NSFetchRequest<Entity.ManagedObject>
-    ) async throws -> Entity? {
+    ) async throws -> Entity {
         try await fetchObjects(with: fetchRequest).first
     }
     

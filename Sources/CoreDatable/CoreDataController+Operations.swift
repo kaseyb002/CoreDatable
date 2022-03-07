@@ -5,11 +5,13 @@ public extension CoreDataController {
     
     func fetchObject<T: CoreDataPersistable>(
         with fetchRequest: NSFetchRequest<T.ManagedObject>
-    ) async throws -> T? {
+    ) async throws -> T {
         try await viewContext.perform {
             fetchRequest.returnsObjectsAsFaults = T.returnObjectsAsFaultsOnFetch
             let items = try self.viewContext.fetch(fetchRequest)
-            guard let first = items.first else { return nil }
+            guard let first = items.first else {
+                throw CoreDatableError.objectNotFound
+            }
             return T.init(managedObject: first)
         }
     }
@@ -123,4 +125,8 @@ public extension CoreDataController {
         }
         return objs
     }
+}
+
+public enum CoreDatableError: Error {
+    case objectNotFound
 }
