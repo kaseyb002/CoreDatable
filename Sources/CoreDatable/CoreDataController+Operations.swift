@@ -12,7 +12,11 @@ public extension CoreDataController {
             guard let first = items.first else {
                 throw CoreDatableError.objectNotFound
             }
-            return T.init(managedObject: first)
+            guard let item = T.init(managedObject: first) else {
+                // TODO: give field specific error; throw on the init
+                throw CoreDatableError.failedToInitModel
+            }
+            retur item
         }
     }
     
@@ -129,4 +133,5 @@ public extension CoreDataController {
 
 public enum CoreDatableError: Error {
     case objectNotFound
+    case failedToInitModel
 }
