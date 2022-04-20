@@ -8,6 +8,7 @@ public extension CoreDataController {
     ) async throws -> T {
         try await viewContext.perform {
             fetchRequest.returnsObjectsAsFaults = T.returnObjectsAsFaultsOnFetch
+            fetchRequest.fetchLimit = 1
             let items = try self.viewContext.fetch(fetchRequest)
             guard let first = items.first else {
                 throw CoreDatableError.objectNotFound
